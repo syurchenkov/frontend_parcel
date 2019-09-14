@@ -12,7 +12,8 @@ const Mapa = (props) => {
                 width={1000}
                 height={700}
                 modules={['geocode',  'geoObject.addon.balloon', 'geoObject.addon.hint']}
-                onClick={props.onPoint} >
+                onClick={props.onPoint}
+                onBoundsChange={props.boundsChange} >
                 {props.marks.map(mark => (
                     <Placemark
                         defaultGeometry={[mark.lat, mark.lon]}
@@ -47,9 +48,7 @@ class Form extends React.Component {
         const value = target.checked;
         const name = target.name;
 
-        this.setState({
-            [name]: value
-        });
+        this.setState({[name]: value });
     };
 
     createInput = (name, label) => {
@@ -67,7 +66,7 @@ class Form extends React.Component {
 
     submit = (e) => {
         e.preventDefault();
-        this.props.onSubmit();
+        this.props.onSubmit(this.state);
     };
 
     render() {
@@ -101,14 +100,8 @@ class Form extends React.Component {
 class Geoanalitix extends React.Component {
     state = {
         point: [], // [lat, lon]
-        apteki: false,
-        kafe: false,
-        tc: false,
-        produkty: false,
-        flowers: false,
-        banks: false,
-        bar: false,
-        markets: false,
+        mapCenter: [], // [lat, lon]
+        address: null,
         organizations: []
     };
 
@@ -126,7 +119,9 @@ class Geoanalitix extends React.Component {
        return address;
     };
 
-
+    centerChanged = (e) => {
+        return this.setState({mapCenter: e.get('newCenter')});
+    };
     openPoint = (e) => {
         const map = e.get('target');
         const coords = e.get('coords');
@@ -145,56 +140,65 @@ class Geoanalitix extends React.Component {
         }
     };
 
-    getOrganizations = async () => {
-        // const res = await fetch("http://vm764532.had.su:8080/organizations", {
-        //     method: 'POST',
-        //     mode: 'cors',
-        //     body: JSON.stringify({
-        //         coordinates: {
-        //             lat: this.state.point[0],
-        //             lon: this.state.point[1]
-        //         },
-        //         category: ["Магазин продуктов"]
-        //     })
-        // });
-        // if(!res.ok) {
-        //     console.log(res);
-        //     throw new Error(`Could not fetch cause ${res.status}`)
-        // }
-        // const data = await res.json();
-        // console.log(data);
-        return(
-            [
-                {
-                    "name": "Продукты",
-                    "category": "Магазин продуктов",
-                    "lat": 55.40894100000001,
-                    "lon": 37.187666
-                },
-                {
-                    "name": "Элинар",
-                    "category": "Магазин продуктов",
-                    "lat": 55.414535,
-                    "lon": 37.190304
-                },
-                {
-                    "name": "АиР",
-                    "category": "Магазин продуктов",
-                    "lat": 55.411963,
-                    "lon": 37.184144
-                }
-            ]
-        );
+    buildCategoriesArgument = (state) => {
+        let result = [];
+        if(state.apteki) {
+            result.push('APTEKI');
+        }
+        if(state.kafe) {
+            result.push('KAFE');
+        }
+        if(state.tc) {
+            result.push('TC');
+        }
+        if(state.produkty) {
+            result.push('PRODUKTY');
+        }
+        if(state.flowers) {
+            result.push('FLOWERS');
+        }
+        if(state.banks) {
+            result.push('BANKS');
+        }
+        if(state.bar) {
+            result.push('BAR');
+        }
+        if(state.markets) {
+            result.push('MARKETS');
+        }
+        return result;
     };
 
-    updateMap = async () => {
-        const organizations = await this.getOrganizations();
+    getOrganizations = async (categories) => {
+        const res = await fetch("http://vm764532.had.su:8080/organizations", {
+            method: 'POST',
+            mode: 'cors',
+            body: JSON.stringify({
+                coordinates: {
+                    lat:  this.state.mapCenter[0],
+                    lon: this.state.mapCenter[1]
+                },
+                categories: this.buildCategoriesArgument(categories)
+            }),
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        if(!res.ok) {
+            console.log(res);
+            throw new Error(`Could not fetch cause ${res.status}`)
+        }
+        const data = await res.json();
+        return data.organizations;
+    };
+
+    updateMap = async (state) => {
+        const organizations = await this.getOrganizations(state);
         return this.setState({ organizations: organizations })
     };
 
 
     static async getInitialProps({ query }) {
-        console.log(query);
         const _test_data = [
             { x: 55, y: 37 }
         ];
@@ -208,19 +212,21 @@ class Geoanalitix extends React.Component {
                 <Head title='geoanalictics'/>
                 <Row>
                     <Col md={{ size: 2, offset: 1 }}>
-                        <Form onSubmit={this.updateMap}/>
+                        <Form onSubmit={this.updateMap} />
                     </Col>
                     <Col md={{size: 9}}>
-                        <Mapa marks={this.state.organizations} onPoint={this.openPoint} />
+                        <Mapa marks={this.state.organizations} onPoint={this.openPoint} boundsChange={this.centerChanged} />
                     </Col>
                     <Col md={{size: 9, offset: 3}}>
                         <h1>
                             {`${this.state.point[0]} ${this.state.point[1]}`}
                         </h1>
+                        <h1>Center</h1>
+                        <h1>
+                            {`${this.state.mapCenter[0]} ${this.state.mapCenter[1]}`}
+                        </h1>
                     </Col>
                 </Row>
-
-
             </Page>
         );
     }
