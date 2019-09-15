@@ -11,6 +11,7 @@ class Anketa extends React.Component {
     state = {
         openDate: new Date(2019, 11, 1),
         openTime: new Date(2019, 1, 1, 9, 0),
+        workTime: 16,
         closeTime: new Date(2019, 1, 1, 20, 0),
         visibility: { value: 'outside_good', label: 'Снаружи хорошо заметна' },
         entryConvenience: { value: 'outside_good', label: 'Снаружи удобно' },
@@ -37,30 +38,26 @@ class Anketa extends React.Component {
         const lon = this.props.lon;
         const lat = this.props.lat;
         const openDateObj = this.state.openDate;
-        const openDate = `${openDateObj.getDate()}.${openDateObj.getMonth()}.${openDateObj.getFullYear()}`;
-        const openTime = this.state.openTime.getHours();
-        const closeTime = this.state.closeTime.getHours();
+        const open_date = `${openDateObj.getDate()}.${openDateObj.getMonth()}.${openDateObj.getFullYear()}`;
         const square = this.state.square;
-        const visibility = this.state.visibility.value;
-        const entryConvenience = this.state.entryConvenience.value;
+        const work_time = this.state.workTime;
+        const city = 'Москва';
 
+
+        const requestJson = {
+            lat,
+            lon,
+            open_date,
+            square,
+            work_time,
+            city
+        };
+        console.log(requestJson);
         // TODO: Set correct endpoint
-        const res = await fetch("http://vm764532.had.su:8080/questionary", {
+        const res = await fetch("http://vm764532.had.su:5000/get-organizations-rate", {
             method: 'POST',
             mode: 'cors',
-            body: JSON.stringify({
-                placement: {
-                    lat,
-                    lon,
-                    openDate,
-                    openTime,
-                    closeTime,
-                    square,
-                    visibility,
-                    entryConvenience
-
-                }
-            }),
+            body: JSON.stringify(requestJson),
             headers: {
                 'Content-Type': 'application/json',
             }
@@ -72,7 +69,8 @@ class Anketa extends React.Component {
         }
         const data = await res.json();
 
-        Router.push('/placement/' + data.id);
+        const arr = data;
+        Router.push(`/placement/1?arr=${arr}`);
     };
 
     handleChange = (field, value) => {
@@ -116,45 +114,42 @@ class Anketa extends React.Component {
                                 />
                             </div>
                             <div className="form-group">
-                                <label> Время открытия</label>
-                                <DatePicker
-                                    selected={this.state.openTime}
-                                    onChange={date => this.handleChange( 'openTime', date)}
-                                    showTimeSelect
-                                    showTimeSelectOnly
-                                    timeIntervals={60}
-                                    timeCaption="Time"
-                                    dateFormat="h:mm aa"
+                                <label> Время работы</label>
+                                <input
+                                    className="form-control"
+                                    type="number"
+                                    value={this.state.workTime}
+                                    onChange={ e => this.handleChange('workTime', e.target.value )}
                                 />
                             </div>
-                            <div className="form-group">
-                                <label> Время закрытия</label>
-                                <DatePicker
-                                    selected={this.state.closeTime}
-                                    onChange={date => this.handleChange( 'closeTime', date)}
-                                    showTimeSelect
-                                    showTimeSelectOnly
-                                    timeIntervals={60}
-                                    timeCaption="Time"
-                                    dateFormat="h:mm aa"
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label> Видимость вывески</label>
-                                <Select
-                                    value={this.state.visibility}
-                                    onChange={value => this.handleChange('visibility', value)}
-                                    options={this.visibilityOptions}
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label> Удобство входа</label>
-                                <Select
-                                    value={this.state.entryConvenience}
-                                    onChange={value => this.handleChange('entryConvenience', value)}
-                                    options={this.entryConvenienceOptions}
-                                />
-                            </div>
+                            {/*<div className="form-group">*/}
+                            {/*    <label> Время закрытия</label>*/}
+                            {/*    <DatePicker*/}
+                            {/*        selected={this.state.closeTime}*/}
+                            {/*        onChange={date => this.handleChange( 'closeTime', date)}*/}
+                            {/*        showTimeSelect*/}
+                            {/*        showTimeSelectOnly*/}
+                            {/*        timeIntervals={60}*/}
+                            {/*        timeCaption="Time"*/}
+                            {/*        dateFormat="h:mm aa"*/}
+                            {/*    />*/}
+                            {/*</div>*/}
+                            {/*<div className="form-group">*/}
+                            {/*    <label> Видимость вывески</label>*/}
+                            {/*    <Select*/}
+                            {/*        value={this.state.visibility}*/}
+                            {/*        onChange={value => this.handleChange('visibility', value)}*/}
+                            {/*        options={this.visibilityOptions}*/}
+                            {/*    />*/}
+                            {/*</div>*/}
+                            {/*<div className="form-group">*/}
+                            {/*    <label> Удобство входа</label>*/}
+                            {/*    <Select*/}
+                            {/*        value={this.state.entryConvenience}*/}
+                            {/*        onChange={value => this.handleChange('entryConvenience', value)}*/}
+                            {/*        options={this.entryConvenienceOptions}*/}
+                            {/*    />*/}
+                            {/*</div>*/}
                             <button type="submit" className="btn btn-primary" onClick={this.submit}>Зарегистрировать помещение</button>
                         </form>
                     </Col>
