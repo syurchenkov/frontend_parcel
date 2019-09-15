@@ -7,9 +7,9 @@ import {Line, HorizontalBar} from 'react-chartjs-2';
 class PredictionChart extends React.Component {
     state = {
         labels: [
-            'Oct',  'Nov',  'Dec', 'Jan',
-            'Feb',  'Mar',  'Apr', 'May',
-            'June', 'July', 'Aug', 'Sep'
+            'Nov',  'Dec', 'Jan', 'Feb',
+            'Mar',  'Apr', 'May', 'June',
+            'July', 'Aug', 'Sep', 'Oct'
         ],
         datasets: [
             {
@@ -19,17 +19,20 @@ class PredictionChart extends React.Component {
                 borderWidth: 2,
                 lineTension: 0,
                 data: [
-                    65, 59, 80, 81,
-                    56, 40, 50, 23,
-                    14, 40, 65, 12
+                    9016623,  8648990, 10896723,
+                    12293697, 12413922, 13953309,
+                    12864996, 14352841, 13375091,
+                    12882011, 12533434, 13298556
                 ]
             }
         ]
     };
 
     render() {
+        const yearSum = this.state.datasets[0].data.reduce((a, b ) => a + b, 0);
         return (
             <div>
+                <h2> Прогнозируемый годовой доход {yearSum}</h2>
                 <Line
                     data={this.state}
                     options={{
@@ -105,9 +108,17 @@ class Placement extends React.Component {
                         <PredictionChart/>
                     </Col>
                     <Col md={{size: 6}}>
-                        <FeatureChart/>
+                        {/*<FeatureChart/>*/}
+                        <img src="/static/model.jpg" className="imageModel" />
+                        <style jsx>{`
+                            .imageModel {
+                              width: 100%;
+                            }
+                            `}
+                        </style>
                     </Col>
                 </Row>
+
             </Page>
         );
     }
