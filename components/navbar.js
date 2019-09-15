@@ -27,10 +27,8 @@ export default class NavBar extends React.Component {
                     <Collapse isOpen={this.state.isOpen} navbar>
                     </Collapse>
                     <Link href='/geoanalitics'>
-                        <a>Geoanalictix</a>
+                        <a>Геоаналитика</a>
                     </Link>
-
-
                 </Navbar>
             </div>
         );
