@@ -45,42 +45,37 @@ class Anketa extends React.Component {
         const entryConvenience = this.state.entryConvenience.value;
 
         // TODO: Set correct endpoint
-        // const res = await fetch("http://vm764532.had.su:8080/", {
-        //     method: 'POST',
-        //     mode: 'cors',
-        //     body: JSON.stringify({
-        //         placement: {
-        //             lat,
-        //             lon,
-        //             openDate,
-        //             openTime,
-        //             closeTime,
-        //             square,
-        //             visibility,
-        //             entryConvenience
-        //
-        //         }
-        //     }),
-        //     headers: {
-        //         'Content-Type': 'application/json',
-        //     }
-        // });
+        const res = await fetch("http://vm764532.had.su:8080/questionary", {
+            method: 'POST',
+            mode: 'cors',
+            body: JSON.stringify({
+                placement: {
+                    lat,
+                    lon,
+                    openDate,
+                    openTime,
+                    closeTime,
+                    square,
+                    visibility,
+                    entryConvenience
 
-        Router.push('/placement/100');
+                }
+            }),
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
 
-        return;
-        // if(!res.ok) {
-        //     console.log(res);
-        //     throw new Error(`Could not fetch cause ${res.status}`)
-        // }
+        if(!res.ok) {
+            console.log(res);
+            throw new Error(`Could not fetch cause ${res.status}`)
+        }
         const data = await res.json();
-        console.log(data);
-        // TODO: handle redirect
-        return data;
+
+        Router.push('/placement/' + data.id);
     };
 
     handleChange = (field, value) => {
-        console.log(field, value);
         this.setState({
             [field]: value
         });
