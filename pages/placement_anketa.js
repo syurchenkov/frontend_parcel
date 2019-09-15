@@ -5,6 +5,7 @@ import Page from '../layouts/main';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Select from 'react-select';
+import Router from 'next/router';
 
 class Anketa extends React.Component {
     state = {
@@ -44,30 +45,34 @@ class Anketa extends React.Component {
         const entryConvenience = this.state.entryConvenience.value;
 
         // TODO: Set correct endpoint
-        const res = await fetch("http://vm764532.had.su:8080/", {
-            method: 'POST',
-            mode: 'cors',
-            body: JSON.stringify({
-                placement: {
-                    lat,
-                    lon,
-                    openDate,
-                    openTime,
-                    closeTime,
-                    square,
-                    visibility,
-                    entryConvenience
+        // const res = await fetch("http://vm764532.had.su:8080/", {
+        //     method: 'POST',
+        //     mode: 'cors',
+        //     body: JSON.stringify({
+        //         placement: {
+        //             lat,
+        //             lon,
+        //             openDate,
+        //             openTime,
+        //             closeTime,
+        //             square,
+        //             visibility,
+        //             entryConvenience
+        //
+        //         }
+        //     }),
+        //     headers: {
+        //         'Content-Type': 'application/json',
+        //     }
+        // });
 
-                }
-            }),
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        });
-        if(!res.ok) {
-            console.log(res);
-            throw new Error(`Could not fetch cause ${res.status}`)
-        }
+        Router.push('/placement/100');
+
+        return;
+        // if(!res.ok) {
+        //     console.log(res);
+        //     throw new Error(`Could not fetch cause ${res.status}`)
+        // }
         const data = await res.json();
         console.log(data);
         // TODO: handle redirect
