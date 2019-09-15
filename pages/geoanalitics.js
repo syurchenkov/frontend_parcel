@@ -3,6 +3,7 @@ import Head from '../components/head';
 import Page from '../layouts/main';
 import React from 'react';
 import { Container, Row, Col } from 'reactstrap';
+import Link from 'next/link';
 
 const Mapa = (props) => {
     return (<YMaps>
@@ -128,12 +129,10 @@ class Geoanalitix extends React.Component {
         if (!map.balloon.isOpen()) {
             this.setState({point: coords});
             Geoanalitix.geocode(coords).then(address => {
-                if(address != null) {
-                    map.balloon.open(coords, {
-                        contentHeader: address,
-                        contentBody: 'o'
-                    });
-                }
+                map.balloon.open(coords, {
+                    contentHeader: (address != null) ? address : 'Не удалось получить адрес',
+                    contentBody: `lat ${coords[0]}; lon ${coords[1]}`
+                });
             });
         } else {
             map.balloon.close();
@@ -207,6 +206,8 @@ class Geoanalitix extends React.Component {
     }
 
     render() {
+        const point_lat = this.state.point[0];
+        const point_lon = this.state.point[1];
         return(
             <Page>
                 <Head title='geoanalictics'/>
@@ -218,13 +219,11 @@ class Geoanalitix extends React.Component {
                         <Mapa marks={this.state.organizations} onPoint={this.openPoint} boundsChange={this.centerChanged} />
                     </Col>
                     <Col md={{size: 9, offset: 3}}>
-                        <h1>
-                            {`${this.state.point[0]} ${this.state.point[1]}`}
-                        </h1>
-                        <h1>Center</h1>
-                        <h1>
-                            {`${this.state.mapCenter[0]} ${this.state.mapCenter[1]}`}
-                        </h1>
+                        <Link href={`/placement_anketa?lat=${point_lat}&lon=${point_lon}`}>
+                            <a>
+                                Создать помещение в lat: {point_lat} lon: {point_lon}
+                            </a>
+                        </Link>
                     </Col>
                 </Row>
             </Page>
